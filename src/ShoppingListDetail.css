@@ -1,0 +1,57 @@
+/* src/ShoppingListDetail.css */
+.shopping-list-detail {
+    max-width: 600px;
+    margin: auto;
+    padding: 20px;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+}
+
+.shopping-list-detail h1 {
+    color: #333;
+    text-align: center;
+}
+
+.items, .users {
+    margin-top: 20px;
+}
+
+.items div, .users p {
+    background-color: #fff;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.items div {
+    display: flex;
+    align-items: center;
+}
+
+.items input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+.users p {
+    opacity: 0.7;
+}
+
+.users p span {
+    font-style: italic;
+}
+
+button {
+    display: inline-block;
+    background-color: #007bff;
+    color: #fff;
+    padding: 6px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+    margin: 5px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
