@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './ShoppingListDetail.css';
 
 const mockListData = {
     id: "1",
-    name: "Weekly Groceries",
+    name: "Shopping List 1",
     items: [
         { id: "item1", name: "Apples", unit: "kg", amount: 2, bought: false },
         { id: "item2", name: "Milk", unit: "liters", amount: 1, bought: true },
@@ -19,25 +19,52 @@ const mockListData = {
 
 const ShoppingListDetail = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const [list, setList] = useState(mockListData); // mockListData reprezentuje počáteční stav nákupního
     const [editState, setEditState] = useState({}); // sleduje stav editace položek
-    const [currentUser] = useState({ id: "user2", isOwner: true }); // uživatel - autorizace podle isOwner true/false
     const [newUserName, setNewUserName] = useState('');
     const [isEditingListName, setIsEditingListName] = useState(false); // nový stav pro úpravu názvu seznamu
 
-
+    // Zjištění zda je uživatel vlastník nebo ne
+    const [currentUser] = useState({
+        id: "user2",
+        isOwner: location.state ? location.state.isOwner : false,
+    });
+    
     // změny při inline úpravách
     const handleEditChange = (itemId, field, value) => {
         setEditState(prev => ({
             ...prev,
-            [itemId]: { ...(prev[itemId] || {}), [field]: value },
+            [itemId]: { 
+                ...(prev[itemId] || {}), 
+                [field]: value 
+            },
         }));
-    };
+    };    
+
+    const handleBoughtChange = (itemId) => {
+        setList(prevList => ({
+          ...prevList,
+          items: prevList.items.map(item => 
+            item.id === itemId ? { ...item, bought: !item.bought } : item
+          ),
+        }));
+      };
 
     // uložení změn, ujištění, že název položky není prázdný
     const handleSaveItem = (itemId) => {
         const itemUpdates = editState[itemId];
-        if (itemUpdates.name && itemUpdates.name.trim() !== "") {
+        // Check if the name is not empty when attempting to save
+        if (!itemUpdates.name || itemUpdates.name.trim() === "") {
+            alert("Item name cannot be empty.");
+            // Optional: Revert to original name if attempted to save as empty
+            setEditState(prev => {
+                const newState = { ...prev };
+                // Remove the edit state for this item, reverting to original name if name was empty
+                delete newState[itemId];
+                return newState;
+            });
+        } else {
             setList(prev => ({
                 ...prev,
                 items: prev.items.map(item => item.id === itemId ? { ...item, ...itemUpdates } : item),
@@ -47,10 +74,8 @@ const ShoppingListDetail = () => {
                 delete newState[itemId];
                 return newState;
             });
-        } else {
-            alert("Item name cannot be empty."); // informování uživatele
         }
-    };
+    }; 
 
     // přidání nové položky
     const handleAddItem = () => {
@@ -136,10 +161,15 @@ const ShoppingListDetail = () => {
                     <h2>Items</h2>
                     {list.items.map(item => (
                         <div key={item.id}>
+                            <input
+                                type="checkbox"
+                                checked={item.bought}
+                                onChange={() => handleBoughtChange(item.id)}
+                            />
                             {editState[item.id] ? (
                                 <>
                                     <input
-                                        value={editState[item.id].name || item.name}
+                                        value={editState[item.id].hasOwnProperty('name') ? editState[item.id].name : item.name}
                                         onChange={(e) => handleEditChange(item.id, 'name', e.target.value)}
                                         placeholder="Item Name"
                                     />
