@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 .modal {
     position: fixed;
     top: 50%;
@@ -10,6 +11,8 @@
     z-index: 1000;
   }
 
+=======
+>>>>>>> a25905efb48cb853c96cef88ba611aa7d288931a
 .shopping-list-detail {
     max-width: 600px;
     margin: auto;
@@ -79,6 +82,7 @@ button:hover {
   .main-page button {
     margin: 10px;
   }
+<<<<<<< HEAD
 
   .list-tile {
     padding: 10px;
@@ -89,3 +93,5 @@ button:hover {
     justify-content: space-between;
     align-items: center;
   }
+=======
+>>>>>>> a25905efb48cb853c96cef88ba611aa7d288931a
