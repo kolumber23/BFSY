@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import shoppingListData from './shoppingListData';
@@ -9,36 +8,10 @@ const ShoppingListDetail = () => {
     const { listId } = useParams();
     const location = useLocation();
     const [list, setList] = useState(null); // mockListData reprezentuje počáteční stav nákupního
-=======
-import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import './ShoppingListDetail.css';
-
-const mockListData = {
-    id: "1",
-    name: "Shopping List 1",
-    items: [
-        { id: "item1", name: "Apples", unit: "kg", amount: 2, bought: false },
-        { id: "item2", name: "Milk", unit: "liters", amount: 1, bought: true },
-        { id: "item3", name: "Pepsi Max", unit: "liters", amount: 8, bought: true },
-    ],
-    users: [
-        { id: "user1", name: "Alice", isOwner: true },
-        { id: "user2", name: "Bob", isOwner: false },
-        { id: "user3", name: "Mark", isOwner: false },
-    ]
-};
-
-const ShoppingListDetail = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const [list, setList] = useState(mockListData); // mockListData reprezentuje počáteční stav nákupního
->>>>>>> a25905efb48cb853c96cef88ba611aa7d288931a
     const [editState, setEditState] = useState({}); // sleduje stav editace položek
     const [newUserName, setNewUserName] = useState('');
     const [isEditingListName, setIsEditingListName] = useState(false); // nový stav pro úpravu názvu seznamu
 
-<<<<<<< HEAD
     useEffect(() => {
         const foundList = shoppingListData.find(list => list.id === listId);
         if (foundList) {
@@ -48,8 +21,6 @@ const ShoppingListDetail = () => {
         }
     }, [listId, navigate]);
 
-=======
->>>>>>> a25905efb48cb853c96cef88ba611aa7d288931a
     // Zjištění zda je uživatel vlastník nebo ne
     const [currentUser] = useState({
         id: "user2",
