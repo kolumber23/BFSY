@@ -1,43 +1,66 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import shoppingListData from './shoppingListData';
 import './ShoppingListDetail.css';
-
-const mockListData = {
-    id: "1",
-    name: "Weekly Groceries",
-    items: [
-        { id: "item1", name: "Apples", unit: "kg", amount: 2, bought: false },
-        { id: "item2", name: "Milk", unit: "liters", amount: 1, bought: true },
-        { id: "item3", name: "Pepsi Max", unit: "liters", amount: 8, bought: true },
-    ],
-    users: [
-        { id: "user1", name: "Alice", isOwner: true },
-        { id: "user2", name: "Bob", isOwner: false },
-        { id: "user3", name: "Mark", isOwner: false },
-    ]
-};
 
 const ShoppingListDetail = () => {
     const navigate = useNavigate();
-    const [list, setList] = useState(mockListData); // mockListData reprezentuje počáteční stav nákupního
+    const { listId } = useParams();
+    const location = useLocation();
+    const [list, setList] = useState(null); // mockListData reprezentuje počáteční stav nákupního
     const [editState, setEditState] = useState({}); // sleduje stav editace položek
-    const [currentUser] = useState({ id: "user2", isOwner: true }); // uživatel - autorizace podle isOwner true/false
     const [newUserName, setNewUserName] = useState('');
     const [isEditingListName, setIsEditingListName] = useState(false); // nový stav pro úpravu názvu seznamu
 
+    useEffect(() => {
+        const foundList = shoppingListData.find(list => list.id === listId);
+        if (foundList) {
+            setList({...foundList});
+        } else {
+            navigate('/');
+        }
+    }, [listId, navigate]);
 
+    // Zjištění zda je uživatel vlastník nebo ne
+    const [currentUser] = useState({
+        id: "user2",
+        isOwner: location.state ? location.state.isOwner : false,
+    });
+    
     // změny při inline úpravách
     const handleEditChange = (itemId, field, value) => {
         setEditState(prev => ({
             ...prev,
-            [itemId]: { ...(prev[itemId] || {}), [field]: value },
+            [itemId]: { 
+                ...(prev[itemId] || {}), 
+                [field]: value 
+            },
         }));
-    };
+    };    
+
+    const handleBoughtChange = (itemId) => {
+        setList(prevList => ({
+          ...prevList,
+          items: prevList.items.map(item => 
+            item.id === itemId ? { ...item, bought: !item.bought } : item
+          ),
+        }));
+      };
 
     // uložení změn, ujištění, že název položky není prázdný
     const handleSaveItem = (itemId) => {
         const itemUpdates = editState[itemId];
-        if (itemUpdates.name && itemUpdates.name.trim() !== "") {
+        // Check if the name is not empty when attempting to save
+        if (!itemUpdates.name || itemUpdates.name.trim() === "") {
+            alert("Item name cannot be empty.");
+            // Optional: Revert to original name if attempted to save as empty
+            setEditState(prev => {
+                const newState = { ...prev };
+                // Remove the edit state for this item, reverting to original name if name was empty
+                delete newState[itemId];
+                return newState;
+            });
+        } else {
             setList(prev => ({
                 ...prev,
                 items: prev.items.map(item => item.id === itemId ? { ...item, ...itemUpdates } : item),
@@ -47,10 +70,8 @@ const ShoppingListDetail = () => {
                 delete newState[itemId];
                 return newState;
             });
-        } else {
-            alert("Item name cannot be empty."); // informování uživatele
         }
-    };
+    }; 
 
     // přidání nové položky
     const handleAddItem = () => {
@@ -103,11 +124,16 @@ const ShoppingListDetail = () => {
         setIsEditingListName(!isEditingListName);
     };
 
-        // funkce pro "smazání" mock listu
+    // funkce pro "smazání" mock listu
     const handleDeleteList = () => {
-        setList(null); 
-        navigate('/');
+        if (window.confirm("Are you sure you want to delete this list?")) {
+            navigate('/');
+        }
     };
+
+    if (!list) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <div className="shopping-list-detail">
@@ -136,10 +162,15 @@ const ShoppingListDetail = () => {
                     <h2>Items</h2>
                     {list.items.map(item => (
                         <div key={item.id}>
+                            <input
+                                type="checkbox"
+                                checked={item.bought}
+                                onChange={() => handleBoughtChange(item.id)}
+                            />
                             {editState[item.id] ? (
                                 <>
                                     <input
-                                        value={editState[item.id].name || item.name}
+                                        value={editState[item.id].hasOwnProperty('name') ? editState[item.id].name : item.name}
                                         onChange={(e) => handleEditChange(item.id, 'name', e.target.value)}
                                         placeholder="Item Name"
                                     />
